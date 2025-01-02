@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "colcon package",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "statusbar": {
+                    "color": "#d66722"
+                },
+            },
+            "command": "colcon build --symlink-install --merge-install --packages-up-to ${input:packages}",
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "packages",
+            "description": "application packages",
+            "type": "pickString",
+            "options": [
+                "pov_application",
+                "pov_bringup",
+                "pov_description",
+                "pov_gazebo",
+            ]
+        }
+    ]
+}

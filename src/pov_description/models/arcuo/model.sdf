@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+    <model name="aruco_box">
+        <pose>0 0 0.5 0 0 0</pose> <!-- Position and orientation (X Y Z roll pitch yaw) -->
+        <static>true</static>
+        <link name="box_link">
+            <pose>0 0 0 0 0 0</pose>
+
+            <!-- Box geometry -->
+            <collision name="box_collision">
+                <geometry>
+                    <box>
+                        <size>1 1 1</size> <!-- Size of the box (X Y Z) -->
+                    </box>
+                </geometry>
+            </collision>
+
+            <visual name="box_visual">
+                <geometry>
+                    <box>
+                        <size>1 1 1</size> <!-- Size of the box (X Y Z) -->
+                    </box>
+                </geometry>
+                <material>
+          <pbr>
+            <metal>
+              <albedo_map>materials/textures/marker_1_4_4_50.png</albedo_map>
+            </metal>
+          </pbr>
+          <diffuse>1 1 1 1</diffuse>
+        </material>
+            </visual>
+
+        </link>
+    </model>
+</sdf>

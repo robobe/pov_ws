@@ -1,0 +1,12 @@
+exec 1>&2
+
+PID=$1
+TMPFILE=/tmp/gdb.$$
+cat << EOF  > $TMPFILE
+set height 0
+bt full
+thread apply all bt full
+quit
+EOF
+gdb -n -batch -x $TMPFILE --pid $PID < /dev/null 2>&1
+/bin/rm -f $TMPFILE

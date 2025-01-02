@@ -1,0 +1,29 @@
+FROM jazzy:gazebo
+# FROM docker.io/humble/cuda:dev
+
+# ** [Optional] Uncomment this section to install additional packages. **
+#
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+   && apt-get -y install --no-install-recommends \
+    tmux \
+    tmuxp \
+    psmisc \
+    htop \
+    ros-jazzy-rmw-cyclonedds-cpp \
+    python3-colcon-clean \
+    xclip \
+    ros-jazzy-ros-gz \
+   && apt-get autoremove -y \
+   && apt-get clean -y \
+   && rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND=dialog
+
+# Set up auto-source of workspace for ros user
+ARG WORKSPACE
+COPY .devcontainer/.tmux.conf /etc/tmux.conf
+RUN pip3 install --user --break-system-packages MAVProxy
+
+# COPY .devcontainer/requirements.txt requirements.txt
+# RUN pip3 install -r requirements.txt
+

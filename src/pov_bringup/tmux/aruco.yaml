@@ -1,0 +1,36 @@
+session_name: sitl_mavros
+windows:
+  - window_name: debug
+    layout: tiled
+    suppress_history: false
+    shell_command_before:
+      - cd /workspaces/pov_ws
+      - source env.sh
+    panes:
+      - shell_command: # gazebo
+          - printf '\033]2;gazebo\033\\'
+          - gz sim -r aruco.sdf
+  - window_name: bridge
+    layout: tiled
+    suppress_history: false
+    shell_command_before:
+      - cd /workspaces/pov_ws
+      - source env.sh
+    panes:
+      - shell_command: # bridge
+          - printf '\033]2;bridge\033\\'
+          - ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspaces/pov_ws/src/pov_bringup/config/bridge.yaml
+  - window_name: mavros
+    layout: tiled
+    suppress_history: false
+    shell_command_before:
+      - cd /workspaces/pov_ws
+      - source env.sh
+    panes:
+      - shell_command: # mavros
+          - printf '\033]2;mavros\033\\'
+          # - ros2 launch pov_bringup pov_mavros.launch.py
+
+          
+
+

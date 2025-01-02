@@ -1,0 +1,7 @@
+install/
+log/
+build/
+logs/
+eeprom.bin
+mav.parm
+mav.tlog*

@@ -1,0 +1,44 @@
+session_name: sitl_mavros
+windows:
+  - window_name: debug
+    layout: tiled
+    suppress_history: false
+    shell_command_before:
+      - cd /workspaces/pov_ws
+      - source env.sh
+    panes:
+      - shell_command: # gazebo
+          - printf '\033]2;gazebo\033\\'
+          - gz sim -r r1_rover_runway.sdf
+      - shell_command: # sitl
+          - printf '\033]2;SITL\033\\'
+          # - src/pov_bringup/launch/sitl.sh
+          - echo "run SITL from outside docker check readme"
+      - shell_command: # mavproxy
+          - printf '\033]2;mavproxy\033\\'
+          - sleep 1
+          - /home/user/.local/bin/mavproxy.py --master=tcp:127.0.0.1:5760 --out=127.0.0.1:14550 --out=10.0.0.2:14551
+  - window_name: bridge
+    layout: tiled
+    suppress_history: false
+    shell_command_before:
+      - cd /workspaces/pov_ws
+      - source env.sh
+    panes:
+      - shell_command: # bridge
+          - printf '\033]2;bridge\033\\'
+          - ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspaces/pov_ws/src/pov_bringup/config/bridge.yaml
+  - window_name: mavros
+    layout: tiled
+    suppress_history: false
+    shell_command_before:
+      - cd /workspaces/pov_ws
+      - source env.sh
+    panes:
+      - shell_command: # mavros
+          - printf '\033]2;mavros\033\\'
+          - ros2 launch pov_bringup pov_mavros.launch.py
+
+          
+
+
