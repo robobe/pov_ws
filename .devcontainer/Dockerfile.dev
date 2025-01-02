@@ -1,0 +1,19 @@
+FROM pov:dev
+
+ARG IMAGE_VERSION=1.0.0
+
+USER root
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+   && apt-get -y install --no-install-recommends \
+      python-is-python3 \
+   && apt-get autoremove -y \
+   && apt-get clean -y \
+   && rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND=dialog
+
+USER user
+
+
+RUN echo "Image Version: $IMAGE_VERSION" > ~/version.txt

@@ -3,7 +3,7 @@
     "workspaceFolder": "/workspaces/pov_ws",
     "build": {
         "context": "..",
-        "dockerfile": "Dockerfile.humble.dev"
+        "dockerfile": "Dockerfile.dev"
     },
     "remoteUser": "user",
     "runArgs": [
@@ -43,7 +43,8 @@
                 "rioj7.command-variable",
                 "mhutchie.git-graph",
                 "dlech.chmod",
-                "mkloubert.vscode-deploy-reloaded"
+                "mkloubert.vscode-deploy-reloaded",
+                "shd101wyy.markdown-preview-enhanced"
             ],
             "settings": {
                 "remote.autoForwardPorts": false,
