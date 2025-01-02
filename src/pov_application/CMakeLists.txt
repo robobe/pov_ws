@@ -18,6 +18,7 @@ set (NODES
   pov_application/odom_to_velocity.py
   pov_application/odom_to_position.py
   pov_application/aruco_node.py
+  pov_application/stream_node.py
 )
 
 set (FILES

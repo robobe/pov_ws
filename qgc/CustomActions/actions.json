@@ -1,0 +1,39 @@
+{
+    "version":    1,
+    "fileType":   "CustomActions",
+    "actions":
+    [
+    {
+      "label":        "GPS Disable",
+      "description":  "Sets servo 10 to a high PWM value",
+      "mavCmd":       183,
+      "param1":       10,
+      "param2":       2000
+    },
+    {
+      "label":        "GPS Enable",
+      "description":  "Sets servo 10 to a low PWM value",
+      "mavCmd":       183,
+      "param1":       10,
+      "param2":       1000
+    },
+    {
+      "label":        "EKF Source 1",
+      "description":  "Change EKF source",
+      "mavCmd":       42007,
+      "param1":       1
+    },
+    {
+        "label":        "EKF Source 2",
+        "description":  "Change EKF source",
+        "mavCmd":       42007,
+        "param1":       2
+      },
+    {
+      "label":        "Script",
+      "description":  "Restart script",
+      "mavCmd":       42701,
+      "param1":       3
+    }
+    ]
+  }

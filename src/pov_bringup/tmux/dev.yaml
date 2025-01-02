@@ -9,7 +9,7 @@ windows:
     panes:
       - shell_command: # gazebo
           - printf '\033]2;gazebo\033\\'
-          - gz sim -r r1_rover_runway.sdf
+          - gz sim -r sonoma_raceway.world
       - shell_command: # sitl
           - printf '\033]2;SITL\033\\'
           # - src/pov_bringup/launch/sitl.sh
@@ -17,7 +17,7 @@ windows:
       - shell_command: # mavproxy
           - printf '\033]2;mavproxy\033\\'
           - sleep 1
-          - /home/user/.local/bin/mavproxy.py --master=tcp:127.0.0.1:5760 --out=127.0.0.1:14550 --out=10.0.0.2:14551
+          - /home/user/.local/bin/mavproxy.py --master=tcp:127.0.0.1:5760 --out=127.0.0.1:14550 --out=172.20.10.3:14551
   - window_name: bridge
     layout: tiled
     suppress_history: false
