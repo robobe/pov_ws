@@ -6,22 +6,8 @@
         "bash": {
             "path": "bash",
             "icon": "terminal-bash",
-            "args": ["--rcfile", "/workspaces/pov_ws/rcfile.sh"]
-        },
-        "zsh": {
-            "path": "zsh"
-        },
-        "fish": {
-            "path": "fish"
-        },
-        "tmux": {
-            "path": "tmux",
-            "icon": "terminal-tmux"
-        },
-        "pwsh": {
-            "path": "pwsh",
-            "icon": "terminal-powershell"
+            "args": ["--rcfile", "/workspaces/pov_ws/env.sh"]
         }
     }
-
+    
 }

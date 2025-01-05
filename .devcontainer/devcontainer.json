@@ -3,7 +3,7 @@
     "workspaceFolder": "/workspaces/pov_ws",
     "build": {
         "context": "..",
-        "dockerfile": "Dockerfile.dev"
+        "dockerfile": "Dockerfile"
     },
     "remoteUser": "user",
     "runArgs": [

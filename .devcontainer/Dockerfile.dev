@@ -1,19 +1,64 @@
-FROM pov:dev
+# version 0.0.2
+# apt: htop
+FROM pov:runtime
 
-ARG IMAGE_VERSION=1.0.0
+ARG VERSION="0.0.2"
 
+RUN echo "POV dev: ${VERSION}">/etc/pov_dev
+
+
+# region rqt
+RUN apt-get update \
+&& apt-get -y install --no-install-recommends \
+    ros-humble-rqt \
+    ros-humble-qt-gui \
+    ros-humble-rqt-tf-tree \
+    ros-humble-rqt-reconfigure \
+    ros-humble-rqt-common-plugins \
+&& apt-get clean -y \
+&& rm -rf /var/lib/apt/lists/*
+# end region
+
+# region rviz and other tools
+RUN apt-get update \
+&& apt-get -y install --no-install-recommends \
+    ros-humble-image-view \
+    ros-humble-vision-msgs-rviz-plugins \
+    libcanberra-gtk-module \
+    libcanberra-gtk3-module \
+&& apt-get clean -y \
+&& rm -rf /var/lib/apt/lists/*
+#endregion
+
+# region harmonic and other tools
+RUN apt-get update \
+&& apt-get -y install --no-install-recommends \
+   python3-serial \
+   libgz-sim8-dev \
+   rapidjson-dev \
+&& apt-get clean -y \
+&& rm -rf /var/lib/apt/lists/*
+#endregion
+
+#
+# region apt packages
+#
+RUN apt-get update \
+&& apt-get -y install --no-install-recommends \
+    tmuxp \
+    psmisc \
+    htop \
+&& apt-get clean -y \
+&& rm -rf /var/lib/apt/lists/*
+# end region
+
+#
+# region mavproxy as user
+#
+USER user
+RUN python3 -m pip install --user MAVProxy
+
+ENV PATH="/home/user/.local/bin:$PATH"
 USER root
 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update \
-   && apt-get -y install --no-install-recommends \
-      python-is-python3 \
-   && apt-get autoremove -y \
-   && apt-get clean -y \
-   && rm -rf /var/lib/apt/lists/*
-ENV DEBIAN_FRONTEND=dialog
-
-USER user
-
-
-RUN echo "Image Version: $IMAGE_VERSION" > ~/version.txt
+#endregion

@@ -12,6 +12,16 @@
             },
             "command": "colcon build --symlink-install --merge-install --packages-up-to ${input:packages}",
             "problemMatcher": []
+        },
+        {
+            "label": "build docker dev",
+            "type": "shell",
+            "command": "docker build -f .devcontainer/Dockerfile.dev  -t pov:dev ."
+        },
+        {
+            "label": "build docker runtime",
+            "type": "shell",
+            "command": "docker build -f .devcontainer/Dockerfile.runtime  -t pov:runtime ."
         }
     ],
     "inputs": [
