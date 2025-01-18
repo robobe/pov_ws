@@ -9,7 +9,11 @@ import cv2
 from scipy.spatial.transform import Rotation as R
 import math # Math library
 # from transforms3d
-from tf_transformations import euler_from_quaternion
+from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
+from tf2_ros.transform_broadcaster import   TransformBroadcaster
+from geometry_msgs.msg import TransformStamped
+
+from tf_transformations import euler_from_quaternion, rotation_matrix, quaternion_from_matrix
 
 arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 
@@ -18,6 +22,9 @@ class ImageSubscriber(Node):
     def __init__(self):
         super().__init__('image_subscriber')
         
+        self.camera_to_camera_optical()
+        self.br = TransformBroadcaster(self)
+        self.publish_aruco_tf()
         # Subscription to the image topic
         self.subscription = self.create_subscription(
             Image,
@@ -45,7 +52,7 @@ class ImageSubscriber(Node):
 
         cv2.aruco.drawDetectedMarkers(image, corners, ids)
 
-        aruco_marker_side_length = 1.0
+        ARUCO_MARKER_SIDE_LENGTH = 1
         # camera_matrix = np.array([
         #     [800, 0, 640],  # Focal lengths (fx, fy) and principal point (cx)
         #     [0, 800, 360],
@@ -56,9 +63,18 @@ class ImageSubscriber(Node):
         # dist_coeffs = np.array([0, 0, 0, 0, 0], dtype=float)
 
         # Get the rotation and translation vectors
+
+        # --
+        # pose (position and orientation) of a single ArUco marker in a 3D space relative to the camera
+
+        # Corners: detect aruco
+        #marker length: The physical length of the side of the ArUco marker in the real world.
+        # ---
+        # rvec: rotation vector
+        # tvec: translation vector
         rvecs, tvecs, obj_points = cv2.aruco.estimatePoseSingleMarkers(
         corners,
-        aruco_marker_side_length,
+        ARUCO_MARKER_SIDE_LENGTH,
         self.camera_matrix,
         self.dist_coeffs)
 
@@ -90,6 +106,12 @@ class ImageSubscriber(Node):
             roll_x = math.degrees(roll_x)
             pitch_y = math.degrees(pitch_y)
             yaw_z = math.degrees(yaw_z)
+            self.publish_aruco_camera_tf(
+                transform_translation_x,
+                transform_translation_y,
+                transform_translation_z,
+                quat
+            )
             print("transform_translation_x: {}".format(transform_translation_x))
             print("transform_translation_y: {}".format(transform_translation_y))
             print("transform_translation_z: {}".format(transform_translation_z))
@@ -99,11 +121,11 @@ class ImageSubscriber(Node):
             print()
                 
             # Draw the axes on the marker
-            cv2.aruco.drawAxis(image, self.camera_matrix, self.dist_coeffs, rvecs[i], tvecs[i], 0.05)
+            cv2.aruco.drawAxis(image, self.camera_matrix, self.dist_coeffs, rvecs[i], tvecs[i], 0.5)
             
         # Display the resulting frame
-        cv2.imshow('frame',image)
-        cv2.waitKey(0)
+        # cv2.imshow('frame',image)
+        # cv2.waitKey(0)
 
 
     def image_callback_info(self, msg):
@@ -119,6 +141,79 @@ class ImageSubscriber(Node):
 
         self.destroy_subscription(self.camera_info)
 
+    def publish_aruco_camera_tf(self, x, y, z, q):
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'camera_optical'  # Parent frame
+        t.child_frame_id = 'aruco'  # Child frame
+
+        # Set dynamic translation (e.g., a sinusoidal movement)
+        t.transform.translation.x = x
+        t.transform.translation.y = y
+        t.transform.translation.z = z
+
+        # Set dynamic rotation (e.g., continuous rotation around Z-axis)
+        t.transform.rotation.x = q[0]
+        t.transform.rotation.y = q[1]
+        t.transform.rotation.z = q[2]
+        t.transform.rotation.w = q[3]
+
+        # Publish the transform
+        self.br.sendTransform(t)
+
+    def camera_to_camera_optical(self):
+        self.static_broadcaster = StaticTransformBroadcaster(self)
+        pi = math.pi
+        y = rotation_matrix(-pi/2,[0,0,1])
+        r = rotation_matrix(-pi/2,[1,0,0])
+
+        rot = y@r
+        q = quaternion_from_matrix(rot)
+
+        static_transform = TransformStamped()
+        static_transform.header.stamp = self.get_clock().now().to_msg()
+        static_transform.header.frame_id = 'camera'
+        static_transform.child_frame_id = 'camera_optical'
+
+        # Translation
+        static_transform.transform.translation.x = 0.0
+        static_transform.transform.translation.y = 0.0
+        static_transform.transform.translation.z = 0.0
+
+        # Rotation (Quaternion)
+        static_transform.transform.rotation.x = q[0]
+        static_transform.transform.rotation.y = q[1]
+        static_transform.transform.rotation.z = q[2]
+        static_transform.transform.rotation.w = q[3]
+
+        # Publish the static transform
+        self.static_broadcaster.sendTransform(static_transform)
+        print('==============================================================')
+
+    def publish_aruco_tf(self):
+        
+        self.static_broadcaster = StaticTransformBroadcaster(self)
+        # Define the static transform
+        static_transform = TransformStamped()
+        static_transform.header.stamp = self.get_clock().now().to_msg()
+        static_transform.header.frame_id = 'aruco'
+        static_transform.child_frame_id = 'world'
+
+        # Translation
+        static_transform.transform.translation.x = 0.0
+        static_transform.transform.translation.y = 0.0
+        static_transform.transform.translation.z = -0.005
+
+        # Rotation (Quaternion)
+        static_transform.transform.rotation.x = 0.0
+        static_transform.transform.rotation.y = 0.0
+        static_transform.transform.rotation.z = 0.0
+        static_transform.transform.rotation.w = 1.0
+
+        # Publish the static transform
+        self.static_broadcaster.sendTransform(static_transform)
+
+        self.get_logger().info('Static transform published!')
 
     def image_callback(self, msg):
         if self.camera_matrix is None:

@@ -41,4 +41,8 @@ target_link_libraries(ArduPilotPlugin PRIVATE
   gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
 )
 
+
+
+add_library(MinimalModelPlugin SHARED src/MinimalModelPlugin.cc)
+target_link_libraries(MinimalModelPlugin gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER})
 # install_targets(ArduPilotPlugin)

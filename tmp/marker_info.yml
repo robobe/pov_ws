@@ -1,0 +1,3 @@
+aruco_dict: 4X4_50
+markers:
+  left: 1

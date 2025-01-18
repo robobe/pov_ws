@@ -18,8 +18,9 @@ image = cv2.copyMakeBorder(
         borderType=cv2.BORDER_CONSTANT, 
         value=(255, 255, 255)  # White color in BGR
     )
-cv2.imshow("arcuo", image)
+# cv2.imshow("arcuo", image)
 cv2.imwrite('marker_1_4_4_50.png', image)
+print(image.shape)
 key = cv2.waitKey(0)
 cv2.destroyAllWindows()
 

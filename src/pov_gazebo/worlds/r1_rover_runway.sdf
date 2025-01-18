@@ -69,7 +69,7 @@
     <!-- Rover -->
     <include>
       <pose degrees="true">0 0 0.15 0 0 90</pose>
-      <uri>model://r1_rover</uri>
+      <uri>model://rover</uri>
     </include>
 
   <!--camera sensor-->

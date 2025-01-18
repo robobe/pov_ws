@@ -458,8 +458,17 @@
        <sensor name="imu_sensor" type="imu">
         <pose degrees="true">0 0 0 180 0 0</pose>
         <always_on>1</always_on>
-        <update_rate>1000</update_rate>
+        <update_rate>100</update_rate>
       </sensor>
+       <!-- gps -->
+     <!-- <sensor name="navsat_sensor" type="navsat">
+          <always_on>1</always_on>
+          <update_rate>30</update_rate>
+        </sensor>
+        <sensor name="magnetometer_sensor" type="magnetometer">
+          <always_on>1</always_on>
+          <update_rate>10</update_rate>
+        </sensor> -->
     </link>
     <joint name='rover/imu_joint' type='revolute'>
       <child>rover/imu_link</child>
@@ -854,6 +863,62 @@
     </joint>
 
     <!-- plugins -->
+    <!--
+      ### joints ###
+      #### Sterring
+      front_right_steering_joint
+      front_left_steering_joint
+      #### Wheels
+      front_left_wheel_joint
+      front_right_wheel_joint
+      rear_left_wheel_joint
+      rear_right_wheel_joint
+    -->
+
+<!-- 
+send joint position command
+gz topic -t /model/rover/joint/front_right_steering_joint/0/cmd_pos -m gz.msgs.Double -p "data: 0.5"
+gz topic -t /model/rover/joint/front_right_steering_joint/0/cmd_pos -m gz.msgs.Double -p "data: 1"
+gz topic -t /model/rover/joint/front_right_steering_joint/0/cmd_pos -m gz.msgs.Double -p "data: -1"
+
+gz topic -t /model/rover/joint/front_right_steering_joint/0/cmd_pos -m gz.msgs.Double -p "data: 0"
+
+/model/rover/joint/front_left_steering_joint/0/cmd_pos
+
+gz topic -t /model/rover/joint/front_left_steering_joint/0/cmd_pos -m gz.msgs.Double -p "data: 0.5"
+gz topic -t /model/rover/joint/front_left_steering_joint/0/cmd_pos -m gz.msgs.Double -p "data: 1"
+gz topic -t /model/rover/joint/front_left_steering_joint/0/cmd_pos -m gz.msgs.Double -p "data: -1"
+
+gz topic -t /model/rover/joint/front_left_steering_joint/0/cmd_pos -m gz.msgs.Double -p "data: 0"
+
+
+ -->
+    <plugin
+  filename="gz-sim-joint-position-controller-system"
+  name="gz::sim::systems::JointPositionController">
+  <joint_name>front_right_steering_joint</joint_name>
+  <p_gain>500</p_gain>
+  <i_gain>0.1</i_gain>
+  <d_gain>0.01</d_gain>
+  <i_max>1</i_max>
+  <i_min>-1</i_min>
+  <cmd_max>1000</cmd_max>
+  <cmd_min>-1000</cmd_min>
+</plugin>
+
+    <plugin
+  filename="gz-sim-joint-position-controller-system"
+  name="gz::sim::systems::JointPositionController">
+  <joint_name>front_left_steering_joint</joint_name>
+  <p_gain>500</p_gain>
+  <i_gain>0.1</i_gain>
+  <d_gain>0.01</d_gain>
+  <i_max>1</i_max>
+  <i_min>-1</i_min>
+  <cmd_max>1000</cmd_max>
+  <cmd_min>-1000</cmd_min>
+</plugin>
+
     <plugin name="gz::sim::systems::JointStatePublisher"
       filename="gz-sim-joint-state-publisher-system">
     </plugin>
@@ -882,6 +947,7 @@
       name="gz::sim::systems::ApplyJointForce">
       <joint_name>motor_3</joint_name>
     </plugin>
+      
      <!-- ardupilot plugin -->
     <plugin name="ArduPilotPlugin"
       filename="ArduPilotPlugin">
@@ -894,252 +960,92 @@
       <imuName>rover/imu_link::imu_sensor</imuName>
 
       <!-- lf_wheel_link -->
+      <!--
+      incoming control command [0, 1]
+      so offset it by 0 to get [0, 1]
+      and divide max target by 1.
+      offset = 0
+      multiplier = 838 max rpm / 1 = 838
+    -->
       <control channel="0">
         <jointName>front_left_steering_joint</jointName>
-        <useForce>1</useForce>
-        <multiplier>46.3</multiplier>
+        <useForce>0</useForce>
+        <multiplier>1.575</multiplier>
         <offset>-0.5</offset>
         <servo_min>1000</servo_min>
         <servo_max>2000</servo_max>
-        <type>POSITION</type>
-        <p_gain>0.2</p_gain>
-        <i_gain>0.06</i_gain>
-        <d_gain>0.0001</d_gain>
-        <i_max>1</i_max>
-        <i_min>-1</i_min>
-        <cmd_max>-1.0</cmd_max>
-        <cmd_min>0.0</cmd_min>
+        <type>COMMAND</type>
+        <cmd_topic>/model/rover/joint/front_left_steering_joint/0/cmd_pos</cmd_topic>
+        <p_gain>1</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>5</cmd_max>
+        <cmd_min>-5</cmd_min>
+        <controlVelocitySlowdownSim>0</controlVelocitySlowdownSim>
       </control>
 
-      <!-- lb_wheel_link -->
-      <control channel="0">
+    <control channel="0">
         <jointName>front_right_steering_joint</jointName>
-        <useForce>1</useForce>
-        <multiplier>46.3</multiplier>
+        <useForce>0</useForce>
+        <multiplier>1.575</multiplier>
         <offset>-0.5</offset>
         <servo_min>1000</servo_min>
         <servo_max>2000</servo_max>
-        <type>POSITION</type>
-        <p_gain>0.2</p_gain>
-        <i_gain>0.06</i_gain>
-        <d_gain>0.0001</d_gain>
-        <i_max>1</i_max>
-        <i_min>-1</i_min>
-        <cmd_max>-1.0</cmd_max>
-        <cmd_min>0.0</cmd_min>
+        <type>COMMAND</type>
+        <cmd_topic>/model/rover/joint/front_right_steering_joint/0/cmd_pos</cmd_topic>
+        <p_gain>1</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>0</d_gain>
+        <i_max>0</i_max>
+        <i_min>0</i_min>
+        <cmd_max>5</cmd_max>
+        <cmd_min>-5</cmd_min>
+        <controlVelocitySlowdownSim>0</controlVelocitySlowdownSim>
       </control>
 
-      <!-- rf_wheel_link -->
       <control channel="2">
         <jointName>rear_left_wheel_joint</jointName>
-        <useForce>1</useForce>
-        <multiplier>-46.3</multiplier>
+        <useForce>0</useForce>
+        <multiplier>120</multiplier>
         <offset>-0.5</offset>
         <servo_min>1000</servo_min>
         <servo_max>2000</servo_max>
         <type>VELOCITY</type>
         <p_gain>0.2</p_gain>
-        <i_gain>0.06</i_gain>
+        <i_gain>0.0</i_gain>
         <d_gain>0.0001</d_gain>
         <i_max>1</i_max>
         <i_min>-1</i_min>
-        <cmd_max>-1.0</cmd_max>
-        <cmd_min>0.0</cmd_min>
+        <cmd_max>1.0</cmd_max>
+        <cmd_min>-1.0</cmd_min>
       </control>
 
       <!-- rb_wheel_link -->
       <control channel="2">
         <jointName>rear_right_wheel_joint</jointName>
-        <useForce>1</useForce>
-        <multiplier>-46.3</multiplier>
+        <useForce>0</useForce>
+        <multiplier>120</multiplier>
         <offset>-0.5</offset>
         <servo_min>1000</servo_min>
         <servo_max>2000</servo_max>
         <type>VELOCITY</type>
         <p_gain>0.2</p_gain>
-        <i_gain>0.06</i_gain>
+        <i_gain>0.0</i_gain>
         <d_gain>0.0001</d_gain>
         <i_max>1</i_max>
         <i_min>-1</i_min>
-        <cmd_max>-1.0</cmd_max>
-        <cmd_min>0.0</cmd_min>
+        <cmd_max>1.0</cmd_max>
+        <cmd_min>-1.0</cmd_min>
       </control>
-    </plugin>
 
 
-<!--     <joint type="revolute" name="rear_differential_joint">
-      <child>rear_right_wheel</child>
-      <parent>rear_left_wheel</parent>
-      <axis>
-        <xyz>0 1 0</xyz>
-        <dynamics>
-          <damping>70</damping>
-        </dynamics>
-        <use_parent_model_frame>true</use_parent_model_frame>
-      </axis>
-      <physics>
-        <ode>
-          <erp>0</erp>
-          <cfm>1000</cfm>
-          <cfm_damping>1</cfm_damping>
-        </ode>
-      </physics>
-    </joint> -->
-    <!-- <include>
-      <uri>model://gps</uri>
-      <pose>0 0 0 0 0 0</pose>
-      <name>gps</name>
-    </include>
-    <joint name='gps_joint' type='fixed'>
-      <child>gps::link</child>
-      <parent>base_link</parent>
-    </joint>
-    <plugin name='barometer_plugin' filename='libgazebo_barometer_plugin.so'>
-      <robotNamespace/>
-      <pubRate>10</pubRate>
-      <baroTopic>/baro</baroTopic>
     </plugin>
-    <plugin name='groundtruth_plugin' filename='libgazebo_groundtruth_plugin.so'>
-      <robotNamespace/>
-    </plugin>
-    <plugin name='magnetometer_plugin' filename='libgazebo_magnetometer_plugin.so'>
-      <robotNamespace/>
-      <pubRate>100</pubRate>
-      <noiseDensity>0.0004</noiseDensity>
-      <randomWalk>6.4e-06</randomWalk>
-      <biasCorrelationTime>600</biasCorrelationTime>
-      <magTopic>/mag</magTopic>
-    </plugin>
-    <plugin name='mavlink_interface' filename='libgazebo_mavlink_interface.so'>
-      <robotNamespace/>
-      <imuSubTopic>/imu</imuSubTopic>
-      <magSubTopic>/mag</magSubTopic>
-      <baroSubTopic>/baro</baroSubTopic>
-      <mavlink_addr>INADDR_ANY</mavlink_addr>
-      <mavlink_tcp_port>{{ mavlink_tcp_port }}</mavlink_tcp_port>
-      <mavlink_udp_port>{{ mavlink_udp_port }}</mavlink_udp_port>
-      <serialEnabled>{{ serial_enabled }}</serialEnabled>
-      <serialDevice>{{ serial_device }}</serialDevice>
-      <baudRate>{{ serial_baudrate }}</baudRate>
-      <qgc_addr>INADDR_ANY</qgc_addr>
-      <qgc_udp_port>14550</qgc_udp_port>
-      <sdk_addr>INADDR_ANY</sdk_addr>
-      <sdk_udp_port>14540</sdk_udp_port>
-      <hil_mode>{{ hil_mode }}</hil_mode>
-      <hil_state_level>0</hil_state_level>
-      <send_vision_estimation>0</send_vision_estimation>
-      <send_odometry>1</send_odometry>
-      <enable_lockstep>1</enable_lockstep>
-      <use_tcp>1</use_tcp>
-      <motorSpeedCommandPubTopic>/gazebo/command/motor_speed</motorSpeedCommandPubTopic>
-      <control_channels> -->
-        <!--
-        <channel name="front_left_wheel_drive">
-          <input_index>3</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>10</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>velocity_kinematic</joint_control_type>
-          <joint_name>front_left_wheel_joint</joint_name>
-        </channel>
-        <channel name="front_right_wheel_drive">
-          <input_index>4</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>10</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>velocity_kinematic</joint_control_type>
-          <joint_name>front_right_wheel_joint</joint_name>
-        </channel>
-      -->
-        <!-- <channel name="rear_left_wheel_drive">
-          <input_index>5</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>40</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>rear_left_wheel_joint</joint_name>
-          <joint_control_pid>
-            <p>50</p>
-            <i>20</i>
-            <d>2</d>
-            <iMax>800</iMax>
-            <iMin>-800</iMin>
-            <cmdMax>1200</cmdMax>
-            <cmdMin>-1200</cmdMin>
-          </joint_control_pid>
-        </channel>
-        <channel name="rear_right_wheel_drive">
-          <input_index>6</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>40</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>rear_right_wheel_joint</joint_name>
-          <joint_control_pid>
-            <p>50</p>
-            <i>20</i>
-            <d>2</d>
-            <iMax>800</iMax>
-            <iMin>-800</iMin>
-            <cmdMax>1200</cmdMax>
-            <cmdMin>-1200</cmdMin>
-          </joint_control_pid>
-        </channel>
-        <channel name="left_wheel_steering">
-          <input_index>0</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>-0.9</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position</joint_control_type>
-          <joint_name>front_left_steering_joint</joint_name>
-          <joint_control_pid>
-            <p>80</p>
-            <i>40</i>
-            <d>0.1</d>
-            <iMax>40</iMax>
-            <iMin>-40</iMin>
-            <cmdMax>80</cmdMax>
-            <cmdMin>-80</cmdMin>
-          </joint_control_pid>
-        </channel>
-        <channel name="right_wheel_steering">
-          <input_index>1</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>-0.9</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position</joint_control_type>
-          <joint_name>front_right_steering_joint</joint_name>
-          <joint_control_pid>
-            <p>80</p>
-            <i>40</i>
-            <d>0.1</d>
-            <iMax>40</iMax>
-            <iMin>-40</iMin>
-            <cmdMax>80</cmdMax>
-            <cmdMin>-80</cmdMin>
-          </joint_control_pid>
-        </channel>
-      </control_channels>
-    </plugin>
-    <plugin name='gazebo_imu_plugin' filename='libgazebo_imu_plugin.so'>
-      <robotNamespace></robotNamespace>
-      <linkName>rover/imu_link</linkName>
-      <imuTopic>/imu</imuTopic>
-      <gyroscopeNoiseDensity>0.0003394</gyroscopeNoiseDensity>
-      <gyroscopeRandomWalk>3.8785e-05</gyroscopeRandomWalk>
-      <gyroscopeBiasCorrelationTime>1000.0</gyroscopeBiasCorrelationTime>
-      <gyroscopeTurnOnBiasSigma>0.0087</gyroscopeTurnOnBiasSigma>
-      <accelerometerNoiseDensity>0.004</accelerometerNoiseDensity>
-      <accelerometerRandomWalk>0.006</accelerometerRandomWalk>
-      <accelerometerBiasCorrelationTime>300.0</accelerometerBiasCorrelationTime>
-      <accelerometerTurnOnBiasSigma>0.196</accelerometerTurnOnBiasSigma>
-    </plugin> -->
 
-  </model>
+   
+
+   
+</model>
 </sdf>
+

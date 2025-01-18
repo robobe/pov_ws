@@ -8,8 +8,10 @@ windows:
       - source env.sh
     panes:
       - shell_command: # gazebo
+          - kill_gz
           - printf '\033]2;gazebo\033\\'
-          - gz sim -r sonoma_raceway.world
+          - gz sim -r empty.world
+          # - gz sim -r r1_rover_runway.world
       - shell_command: # sitl
           - printf '\033]2;SITL\033\\'
           # - src/pov_bringup/launch/sitl.sh
@@ -17,7 +19,7 @@ windows:
       - shell_command: # mavproxy
           - printf '\033]2;mavproxy\033\\'
           - sleep 1
-          - /home/user/.local/bin/mavproxy.py --master=tcp:127.0.0.1:5760 --out=127.0.0.1:14550 --out=172.20.10.3:14551
+          - /home/user/.local/bin/mavproxy.py --master=tcp:127.0.0.1:5760 --out=127.0.0.1:14550 --out=10.0.0.2:14551
   - window_name: bridge
     layout: tiled
     suppress_history: false
@@ -38,6 +40,27 @@ windows:
       - shell_command: # mavros
           - printf '\033]2;mavros\033\\'
           - ros2 launch pov_bringup pov_mavros.launch.py
+
+      - shell_command: # velocity
+          - printf '\033]2;velocity\033\\'
+          - ros2 run pov_application odom_to_velocity.py
+
+      - shell_command: # position
+          - printf '\033]2;position\033\\'
+          - ros2 run pov_application odom_to_position.py
+
+  - window_name: video
+    layout: tiled
+    suppress_history: false
+    shell_command_before:
+      - cd /workspaces/pov_ws
+      - source env.sh
+    panes:
+      - shell_command: # video
+          - printf '\033]2;video\033\\'
+          - export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libunwind.so.8
+          - ros2 run pov_application stream_node.py --ros-args -p use_sim_time:=true
+
 
           
 

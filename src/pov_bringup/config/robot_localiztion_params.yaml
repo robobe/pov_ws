@@ -1,0 +1,71 @@
+ekf_filter_node:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 10.0  # Frequency in Hz for the filter
+    two_d_mode: true  # Use only x, y, and yaw (ignore z, roll, and pitch)
+    map_frame: map  # Global reference frame
+    odom_frame: vehicle_blue/odom  # Odometry reference frame
+    base_link_frame: vehicle_blue/chassis  # Robot base frame
+    world_frame: vehicle_blue/odom  # Frame for frame transforms (e.g., odom or map)
+    publish_tf: true
+    # Input sensor topics and their configurations
+    odom0: /noise_odom  # Odometry topic
+    # [  X,        Y,       Z
+    #   roll,    pitch,    yaw
+    #   X/dt,     Y/dt,    Z/dt
+    # roll/dt, pitch/dt, yaw/dt
+    #   X/dt2,    Y/dt2,   Z/dt2]
+    odom0_config: [false, false, false,
+                  false, false, false,
+                  true,  true,  false,
+                  false, false, true,
+                  false, false, false,]
+    odom0_differential: false
+    odom0_queue_size: 10
+
+    debug: false
+
+    # Defaults to "robot_localization_debug.txt" if unspecified. Please specify the full path.
+    debug_out_file: /tmp/localization.debug
+    imu0: /sim_imu  # IMU topic
+    imu0_config: [false, false, false,
+                  false, false, false,
+                  false,  false,  false,
+                  false, false, true,
+                  true, false, false,]
+    # imu0_differential: false
+    # imu0_remove_gravitational_acceleration: true
+    # imu0_queue_size: 10
+
+    # process_noise_covariance: [0.05, 0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+    #                                           0,    0.05, 0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+    #                                           0,    0,    0.06, 0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+    #                                           0,    0,    0,    0.03, 0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+    #                                           0,    0,    0,    0,    0.03, 0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+    #                                           0,    0,    0,    0,    0,    0.06, 0,     0,     0,    0,    0,    0,    0,    0,    0,
+    #                                           0,    0,    0,    0,    0,    0,    0.025, 0,     0,    0,    0,    0,    0,    0,    0,
+    #                                           0,    0,    0,    0,    0,    0,    0,     0.025, 0,    0,    0,    0,    0,    0,    0,
+    #                                           0,    0,    0,    0,    0,    0,    0,     0,     0.04, 0,    0,    0,    0,    0,    0,
+    #                                           0,    0,    0,    0,    0,    0,    0,     0,     0,    0.01, 0,    0,    0,    0,    0,
+    #                                           0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0.01, 0,    0,    0,    0,
+    #                                           0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0.02, 0,    0,    0,
+    #                                           0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0.01, 0,    0,
+    #                                           0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0.01, 0,
+    #                                           0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0.015]
+
+
+    # initial_estimate_covariance: [1e-9, 0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+    #                                                       0,    1e-9, 0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+    #                                                       0,    0,    1e-9, 0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+    #                                                       0,    0,    0,    1e-9, 0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+    #                                                       0,    0,    0,    0,    1e-9, 0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+    #                                                       0,    0,    0,    0,    0,    1e-9, 0,    0,    0,    0,     0,     0,     0,    0,    0,
+    #                                                       0,    0,    0,    0,    0,    0,    1e-9, 0,    0,    0,     0,     0,     0,    0,    0,
+    #                                                       0,    0,    0,    0,    0,    0,    0,    1e-9, 0,    0,     0,     0,     0,    0,    0,
+    #                                                       0,    0,    0,    0,    0,    0,    0,    0,    1e-9, 0,     0,     0,     0,    0,    0,
+    #                                                       0,    0,    0,    0,    0,    0,    0,    0,    0,    1e-9,  0,     0,     0,    0,    0,
+    #                                                       0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     1e-9,  0,     0,    0,    0,
+    #                                                       0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     1e-9,  0,    0,    0,
+    #                                                       0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     1e-9, 0,    0,
+    #                                                       0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    1e-9, 0,
+    #                                                       0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    1e-9]

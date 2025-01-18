@@ -10,7 +10,7 @@
             <collision name="box_collision">
                 <geometry>
                     <box>
-                        <size>1 1 1</size> <!-- Size of the box (X Y Z) -->
+                        <size>1 1 0.01</size> <!-- Size of the box (X Y Z) -->
                     </box>
                 </geometry>
             </collision>
@@ -18,7 +18,7 @@
             <visual name="box_visual">
                 <geometry>
                     <box>
-                        <size>1 1 1</size> <!-- Size of the box (X Y Z) -->
+                        <size>1 1 0.01</size> <!-- Size of the box (X Y Z) -->
                     </box>
                 </geometry>
                 <material>

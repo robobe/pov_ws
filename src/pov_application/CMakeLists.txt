@@ -19,6 +19,9 @@ set (NODES
   pov_application/odom_to_position.py
   pov_application/aruco_node.py
   pov_application/stream_node.py
+  pov_application/interactive_marker_cmd_vel.py
+  pov_application/noise_odom.py
+  pov_application/tf_usage.py
 )
 
 set (FILES

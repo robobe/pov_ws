@@ -9,8 +9,7 @@ windows:
     panes:
       - shell_command: # gazebo
           - printf '\033]2;gazebo\033\\'
-          - kill_gz
-          - gz sim -r aruco.sdf
+          - gz sim -r diffdrive.world
   - window_name: bridge
     layout: tiled
     suppress_history: false
@@ -20,27 +19,25 @@ windows:
     panes:
       - shell_command: # bridge
           - printf '\033]2;bridge\033\\'
-          - ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspaces/pov_ws/src/pov_bringup/config/bridge.yaml
+          - ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=/workspaces/pov_ws/src/pov_bringup/config/bridge_diff.yaml
       - shell_command: # tf
           - printf '\033]2;tf\033\\'
-          - ros2 run rqt_tf_tree rqt_tf_tree
-  - window_name: camera
+          - ros2 run rqt_tf_tree rqt_tf_tree --ros-args -p use_sim_time:=true
+
+      - shell_command: # rviz
+          - printf '\033]2;rviz\033\\'
+          - ros2 run rviz2 rviz2 -d /workspaces/pov_ws/src/pov_bringup/config/rviz_odom.rviz --ros-args -p use_sim_time:=true 
+  - window_name: odom
     layout: tiled
     suppress_history: false
     shell_command_before:
       - cd /workspaces/pov_ws
       - source env.sh
     panes:
-      - shell_command: # camera control
-          - printf '\033]2;camera ctl\033\\'
-          - python /workspaces/pov_ws/src/pov_application/scripts/pygame_keyboard.py
-      - shell_command: # aruco view
-          - printf '\033]2;aruco view\033\\'
-          - ros2 run pov_application aruco_node.py
-      - shell_command: # tf result
-          - printf '\033]2;tf\033\\'
-          - ros2 run pov_application tf_usage.py
-          
+      - shell_command: # odom
+        - printf '\033]2;noise\033\\'
+        - ros2 run pov_application noise_odom.py
+
 
           
 

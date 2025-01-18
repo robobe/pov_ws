@@ -56,6 +56,9 @@ Run sitl from outside the docker
 # run latest version
 /home/user/git/ardupilot/build/sitl/bin/ardurover -S --model JSON --speedup 1 --slave 0 --defaults /home/user/workspaces/pov_ws/src/pov_bringup/config/rover.param,/home/user/workspaces/pov_ws/src/pov_bringup/config/rover-skid.param --sim-address=127.0.0.1 -I0
 ```
+```bash title="accureman"
+/home/user/git/ardupilot/build/sitl/bin/ardurover -S --model JSON --speedup 1 --slave 0 --defaults /home/user/workspaces/pov_ws/src/pov_bringup/config/rover.param,/home/user/workspaces/pov_ws/src/pov_bringup/config/rover-acc.param --sim-address=127.0.0.1 -I0
+```
 
 ```bash
 # version 4.5.7
@@ -94,3 +97,9 @@ gz topic -t /chatter -m gz.msgs.StringMsg -p 'data:"Hello"'
 
 ## Resource
 - [ros2-gazebo-aruco](https://github.com/SaxionMechatronics/ros2-gazebo-aruco/tree/main)
+
+
+## To read and check
+
+meduim - gazebo sim (harmonic) plugins and sensors for ros2
+https://www.youtube.com/watch?v=QZ5q59H2qaI

@@ -2,16 +2,22 @@
 
 # very importent
 # https://github.com/ros2/rclpy/issues/1149
-# gst-launch-1.0 \
-#         videotestsrc \
-#         ! videoconvert ! videoscale ! video/x-raw,width=320,height=240 \
-#         ! theoraenc ! oggmux ! tcpserversink host=127.0.0.1 port=5000
-
+"""
+gst-launch-1.0 \
+        videotestsrc \
+        ! video/x-raw,width=800,height=600 \
+        ! videoconvert \
+        ! video/x-raw,format=I420 \
+        ! videoconvert \
+        ! x264enc name=codec bitrate=500  \
+        ! rtph264pay  \
+        ! udpsink host=10.0.0.2 port=5000 sync=true
+        """
 import traceback
 
 import gi
 import numpy as np
-
+import cv2
 #
 # Stream Image message using gstreamer
 #
@@ -86,21 +92,41 @@ def change_codec_prop(prop, value):
 
 
 def gst_runner(bitrate):
-    PIPELINE = "appsrc name=app_src \
+    # 1 (downstream): Drop the oldest buffer.
+    # ! queue max-size-buffers=1 leaky=downstream ! videorate ! video/x-raw, framerate=5/1 \
+    PIPELINE = "appsrc name=app_src is-live=True format=3 \
         ! video/x-raw,width={width},height={height},format=BGR,framerate={fps}/1 \
         ! videoconvert \
-        ! x264enc name=codec bitrate={bitrate} qp-max=50 qp-min=10 speed-preset=ultrafast tune=zerolatency \
-        ! rtph264pay mtu={MTU} \
-        ! udpsink host={host} port={port} {multicast} sync=false".format(
+        ! queue max-size-buffers=1 leaky=downstream \
+        ! videorate \
+        ! video/x-raw, framerate=10/1 \
+        ! videoconvert  \
+        ! video/x-raw,format=I420 \
+        ! videoconvert \
+        ! x264enc name=codec bitrate={bitrate} speed-preset=ultrafast  threads=2 \
+        ! rtph264pay mtu={MTU} config-interval=1 pt=96 \
+        ! udpsink host={host} port={port} sync=false".format(
         width=800,
         height=600,
-        fps=30,
-        bitrate=2500,
+        fps=10,
+        bitrate=1000,
         MTU=1500,
-        host="172.20.10.3",
-        port=5000,
-        multicast="auto-multicast=false",
+        host="10.0.0.2",
+        port=5000
     )
+
+#     PIPELINE=""" videotestsrc is-live=true \
+# ! video/x-raw,width=800,height=600,framerate=10/1 \
+# ! videoconvert \
+# ! queue max-size-buffers=1 leaky=downstream \
+# ! videorate \
+# ! video/x-raw, framerate=10/1 \
+# ! videoconvert \
+# ! video/x-raw,format=I420 \
+# ! videoconvert \
+# ! x264enc name=codec bitrate=500 speed-preset=ultrafast  \
+# ! rtph264pay config-interval=1 pt=96 \
+# ! udpsink host=10.0.0.2 port=5000 sync=true"""
 
     """
     gst-launch-1.0 -v udpsrc port=5000 ! application/x-rtp, encoding-name=H264, payload=96 ! rtph264depay  ! avdec_h264 ! videoconvert ! fpsdisplaysink
@@ -129,7 +155,11 @@ def gst_runner(bitrate):
 
 def ndarray_to_gst_buffer(array: np.ndarray) -> Gst.Buffer:
     """Converts numpy array to Gst.Buffer"""
-    return Gst.Buffer.new_wrapped(array.tobytes())
+    buffer = Gst.Buffer.new_wrapped(array.tobytes())
+    buffer.pts = Gst.CLOCK_TIME_NONE
+    # buffer.dts = Gst.CLOCK_TIME_NONE
+    # buffer.pts = Gst.until_uint64_scale(pts, Gst.SECOND, 1)
+    return buffer
 
 
 # endregion
@@ -200,6 +230,7 @@ class MyNode(Node):
 
     def image_handler(self, msg: Image):
         frame = self.cv_br.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+        cv2.imshow("sss", frame)
         if app_source:
             app_source.emit("push-buffer", ndarray_to_gst_buffer(frame))
 
@@ -218,3 +249,5 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
+
+# edgeai-robotics-sdk

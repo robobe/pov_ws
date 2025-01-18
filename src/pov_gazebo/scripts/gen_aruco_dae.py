@@ -42,9 +42,9 @@ class TileMap:
         return img
 
 
-@click.command()
-@click.argument("path", type=click.Path(exists=True))
-@click.option("--tile_size", type=int, default=100)
+# @click.command()
+# @click.argument("path", type=click.Path(exists=True))
+# @click.option("--tile_size", type=int, default=100)
 def main(path, tile_size):
     margin = int(0.3 * tile_size)
 
@@ -55,17 +55,19 @@ def main(path, tile_size):
 
     ids = []
 
-    marker_id = 0
+    marker_id = 1
     for i in range(4):
         for j in range(3):
             if i != 1 and (j==0  or j == 2):
                 continue
 
             marker_img = marker_factory.create_marker(tile_size, marker_id, margin)
-            tile_map.set_tile((i, j), marker_img)
-            ids.append(marker_id)
+            print(i,j)
+            if i==1 and j==2:
+                tile_map.set_tile((i, j), marker_img)
+                ids.append(marker_id)
 
-            marker_id += 1
+            # marker_id += 1
 
     tile_img = tile_map.get_map_image()
 
@@ -86,4 +88,4 @@ def main(path, tile_size):
 
 
 if __name__ == '__main__':
-    main()
+    main("/workspaces/pov_ws/src/pov_description/models/aruco_box/materials/textures", 300)
